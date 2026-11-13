@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 页面未找到</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a0f;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* 星空背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* 404 数字 */
+        .error-code {
+            font-size: 180px;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(102, 126, 234, 0.3);
+            animation: float 3s ease-in-out infinite;
+            letter-spacing: 10px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* 错误信息 */
+        .error-title {
+            font-size: 32px;
+            font-weight: 300;
+            margin: 20px 0 10px;
+            color: #e0e0e0;
+            letter-spacing: 8px;
+        }
+
+        .error-desc {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 40px;
+            line-height: 1.8;
+        }
+
+        /* 返回按钮 */
+        .btn-home {
+            display: inline-block;
+            padding: 14px 40px;
+            font-size: 16px;
+            color: #fff;
+            text-decoration: none;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            border-radius: 50px;
+            background: rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-home::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-home:hover {
+            background: rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-home:hover::before {
+            left: 100%;
+        }
+
+        /* 装饰圆环 */
+        .orbit {
+            position: absolute;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            animation: rotate 20s linear infinite;
+        }
+
+        .orbit-1 {
+            width: 400px;
+            height: 400px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .orbit-2 {
+            width: 550px;
+            height: 550px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-direction: reverse;
+            animation-duration: 30s;
+        }
+
+        .orbit-3 {
+            width: 700px;
+            height: 700px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 40s;
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* 小行星 */
+        .asteroid {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #667eea;
+        }
+
+        .orbit-1 .asteroid {
+            top: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .orbit-2 .asteroid {
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f093fb;
+            box-shadow: 0 0 10px #f093fb;
+        }
+
+        .orbit-3 .asteroid {
+            top: 50%;
+            right: -3px;
+            transform: translateY(-50%);
+            background: #764ba2;
+            box-shadow: 0 0 10px #764ba2;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .error-code { font-size: 100px; }
+            .error-title { font-size: 22px; }
+            .error-desc { font-size: 14px; }
+            .orbit-1 { width: 250px; height: 250px; }
+            .orbit-2 { width: 350px; height: 350px; }
+            .orbit-3 { width: 450px; height: 450px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 轨道装饰 -->
+    <div class="orbit orbit-1"><div class="asteroid"></div></div>
+    <div class="orbit orbit-2"><div class="asteroid"></div></div>
+    <div class="orbit orbit-3"><div class="asteroid"></div></div>
+
+    <!-- 主内容 -->
+    <div class="container">
+        <div class="error-code">404</div>
+        <h1 class="error-title">页面迷失在宇宙中</h1>
+        <p class="error-desc">
+            您访问的页面似乎已经飘向了未知的星系<br>
+            请检查网址是否正确，或者返回首页继续探索
+        </p>
+        <a href="/" class="btn-home">返回首页</a>
+    </div>
+
+    <script>
+        // 生成随机星星
+        const starsContainer = document.getElementById('stars');
+        const starCount = 150;
+
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+
+            const size = Math.random() * 2 + 1;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+
+            starsContainer.appendChild(star);
+        }
+    </script>
+</body>
+</html>
