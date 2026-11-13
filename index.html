@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>幸运点名 · LUCKY ROLL CALL</title>
+<style>
+  /* ============ 新粗野主义核心变量 ============ */
+  :root {
+    --ink: #0a0a0a;
+    --paper: #fdf6e3;
+    --pink: #ff6b9d;
+    --yellow: #ffd93d;
+    --green: #6bcb77;
+    --blue: #4d96ff;
+    --purple: #b983ff;
+    --orange: #ff9f45;
+    --shadow: 6px 6px 0 var(--ink);
+    --shadow-sm: 4px 4px 0 var(--ink);
+    --border: 3px solid var(--ink);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      linear-gradient(var(--ink) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ink) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* ============ 头部 ============ */
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 4px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    transform: rotate(-2deg);
+  }
+
+  h1 {
+    font-size: clamp(40px, 8vw, 72px);
+    font-weight: 900;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    text-shadow: 4px 4px 0 var(--pink);
+    -webkit-text-stroke: 2px var(--ink);
+    paint-order: stroke fill;
+  }
+
+  .subtitle {
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-block;
+    background: var(--yellow);
+    border: var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 6px 18px;
+    transform: rotate(1deg);
+  }
+
+  /* 装饰几何 */
+  .deco { position: absolute; pointer-events: none; }
+  .deco-circle {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--blue); border: var(--border);
+    top: 0; left: 4%;
+  }
+  .deco-triangle {
+    width: 0; height: 0;
+    border-left: 28px solid transparent;
+    border-right: 28px solid transparent;
+    border-bottom: 48px solid var(--green);
+    top: 10px; right: 6%;
+    filter: drop-shadow(3px 3px 0 var(--ink));
+  }
+  .deco-cross {
+    width: 40px; height: 40px;
+    top: 90px; right: 12%;
+  }
+  .deco-cross::before, .deco-cross::after {
+    content: ""; position: absolute; background: var(--pink); border: 2px solid var(--ink);
+  }
+  .deco-cross::before { width: 100%; height: 12px; top: 14px; }
+  .deco-cross::after { width: 12px; height: 100%; left: 14px; }
+
+  /* ============ 布局 ============ */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 860px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: #fff;
+    border: var(--border);
+    box-shadow: var(--shadow);
+    padding: 20px;
+  }
+
+  .panel-title {
+    font-size: 18px;
+    font-weight: 900;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* ============ 名单输入区 ============ */
+  textarea {
+    width: 100%;
+    height: 180px;
+    border: var(--border);
+    background: var(--paper);
+    padding: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 500;
+    resize: vertical;
+    outline: none;
+    box-shadow: inset 3px 3px 0 rgba(10,10,10,.08);
+  }
+  textarea:focus { background: #fff; box-shadow: inset 3px 3px 0 rgba(10,10,10,.08), 0 0 0 3px var(--yellow); }
+
+  .hint {
+    font-size: 12px;
+    color: #555;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    flex: 1;
+    min-width: 120px;
+    border: var(--border);
+    background: #fff;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 900;
+    padding: 12px 10px;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform .08s, box-shadow .08s;
+    font-family: inherit;
+    letter-spacing: 1px;
+  }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
+
+  .btn-pink { background: var(--pink); }
+  .btn-yellow { background: var(--yellow); }
+  .btn-green { background: var(--green); }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-dark { background: var(--ink); color: #fff; }
+
+  .file-input-wrap {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    min-width: 120px;
+  }
+  .file-input-wrap input[type=file] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+  }
+  .file-input-wrap .btn { width: 100%; pointer-events: none; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .stat-box {
+    border: var(--border);
+    padding: 10px;
+    text-align: center;
+    background: var(--paper);
+  }
+  .stat-box .val {
+    font-size: 28px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-box .lbl { font-size: 12px; font-weight: 700; color: #555; letter-spacing: 1px; }
+  .stat-box:nth-child(1) .val { color: var(--blue); }
+  .stat-box:nth-child(2) .val { color: var(--pink); }
+
+  /* ============ 模式切换 ============ */
+  .mode-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: var(--border);
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .mode-btn {
+    padding: 14px 8px;
+    font-size: 15px;
+    font-weight: 900;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+    transition: color .15s;
+  }
+  .mode-btn.active { color: #fff; }
+  .mode-slider {
+    position: absolute;
+    top: 0; left: 0;
+    width: 50%; height: 100%;
+    background: var(--ink);
+    transition: transform .2s cubic-bezier(.6, 1.4, .4, 1);
+    z-index: 0;
+  }
+  .mode-switch[data-mode="multi"] .mode-slider { transform: translateX(100%); }
+
+  .mode-desc {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+    margin: -10px 0 18px;
+    padding: 8px 12px;
+    border-left: 4px solid var(--yellow);
+    background: rgba(255,217,61,.15);
+  }
+
+  /* ============ 舞台区 ============ */
+  .stage {
+    background: #fff;
+    border: var(--border);
+    box-shadow: var(--shadow);
+    padding: 28px 20px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .stage::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 10px;
+    background: repeating-linear-gradient(
+      -45deg, var(--ink) 0 12px, var(--yellow) 12px 24px
+    );
+  }
+
+  .stage-label {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .name-display {
+    font-size: clamp(48px, 10vw, 88px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+  }
+
+  .name-display.rolling {
+    animation: shake .12s infinite;
+  }
+  @keyframes shake {
+    0% { transform: translate(0,0) rotate(0deg); }
+    25% { transform: translate(-3px,2px) rotate(-1deg); }
+    50% { transform: translate(3px,-2px) rotate(1deg); }
+    75% { transform: translate(-2px,-3px) rotate(-.5deg); }
+    100% { transform: translate(2px,3px) rotate(.5deg); }
+  }
+
+  .name-display.winner {
+    animation: pop .35s cubic-bezier(.3, 1.6, .5, 1);
+    color: var(--ink);
+    text-shadow: 3px 3px 0 var(--yellow), 6px 6px 0 var(--pink);
+  }
+  @keyframes pop {
+    0% { transform: scale(.3) rotate(-6deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .draw-btn {
+    width: 100%;
+    margin-top: 18px;
+    font-size: 22px;
+    padding: 18px;
+    letter-spacing: 6px;
+    background: var(--pink);
+    position: relative;
+  }
+  .draw-btn:disabled {
+    background: #ddd;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ============ 历史记录 ============ */
+  .history-panel { background: #fff; border: var(--border); box-shadow: var(--shadow); padding: 20px; }
+  .history-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-top: 10px;
+  }
+  .history-tag {
+    border: 2px solid var(--ink);
+    padding: 4px 12px;
+    font-size: 14px;
+    font-weight: 900;
+    background: var(--paper);
+    box-shadow: 3px 3px 0 var(--ink);
+    animation: tagIn .25s cubic-bezier(.3, 1.5, .5, 1);
+  }
+  @keyframes tagIn {
+    from { transform: scale(.5) rotate(8deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .history-empty {
+    color: #999;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 16px 0;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* ============ 名单管理 ============ */
+  .roster-panel { margin-top: 20px; background: #fff; border: var(--border); box-shadow: var(--shadow); padding: 20px; }
+  .roster-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .roster-item {
+    border: 2px solid var(--ink);
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .roster-item.called {
+    background: #eee;
+    color: #aaa;
+    text-decoration: line-through;
+    box-shadow: none;
+    border-color: #ccc;
+  }
+  .roster-item .dot {
+    width: 10px; height: 10px;
+    background: var(--green);
+    border: 2px solid var(--ink);
+    flex-shrink: 0;
+  }
+  .roster-item.called .dot { background: #ccc; border-color: #aaa; }
+
+  /* toast */
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--ink);
+    color: #fff;
+    padding: 12px 24px;
+    font-weight: 900;
+    font-size: 14px;
+    border: 3px solid #fff;
+    box-shadow: var(--shadow);
+    transition: transform .3s cubic-bezier(.3, 1.4, .5, 1);
+    z-index: 99;
+    letter-spacing: 1px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--paper); border-left: 2px solid var(--ink); }
+  ::-webkit-scrollbar-thumb { background: var(--ink); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="deco deco-circle"></div>
+    <div class="deco deco-triangle"></div>
+    <div class="deco deco-cross"></div>
+    <div class="badge">NEO-BRUTALISM</div>
+    <h1>幸运点名</h1>
+    <div class="subtitle">LUCKY ROLL CALL · 公平公正 全凭运气</div>
+  </header>
+
+  <div class="main-grid">
+
+    <!-- 左栏：名单管理 -->
+    <div>
+      <div class="panel">
+        <div class="panel-title"><span class="num">1</span>导入名单</div>
+        <textarea id="nameInput" placeholder="每行一个名字，例如：&#10;张三&#10;李四&#10;王五&#10;&#10;支持逗号、顿号、空格分隔，粘贴进来也可以。"></textarea>
+        <div class="hint">支持手动输入、粘贴，或导入 <b>.txt / .csv / .xlsx / .xls</b> 文件。Excel 会读取第一个工作表的第一列。</div>
+        <div class="btn-row">
+          <div class="file-input-wrap">
+            <button class="btn btn-yellow">📂 导入文件</button>
+            <input type="file" id="fileInput" accept=".txt,.csv,.xlsx,.xls">
+          </div>
+          <button class="btn btn-green" id="loadBtn">✓ 载入名单</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-dark" id="demoBtn">🎲 填充示例</button>
+          <button class="btn" id="clearBtn" style="background:#fff">🗑 清空</button>
+        </div>
+        <div class="stats">
+          <div class="stat-box"><div class="val" id="statTotal">0</div><div class="lbl">总人数</div></div>
+          <div class="stat-box"><div class="val" id="statRemain">0</div><div class="lbl">剩余可点</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右栏：点名区 -->
+    <div>
+      <div class="mode-switch" id="modeSwitch" data-mode="once">
+        <div class="mode-slider"></div>
+        <button class="mode-btn active" data-mode="once">☝ 一人一次</button>
+        <button class="mode-btn" data-mode="multi">🔁 可重复点</button>
+      </div>
+      <div class="mode-desc" id="modeDesc">当前模式：每人最多被点到一次，点完全部自动重置。适合课堂提问、抽签。</div>
+
+      <div class="stage">
+        <div class="stage-label">— 今日幸运儿 —</div>
+        <div class="name-display" id="nameDisplay">?</div>
+        <button class="btn draw-btn" id="drawBtn">开始点名</button>
+      </div>
+
+      <div class="history-panel">
+        <div class="panel-title"><span class="num" style="background:var(--pink)">★</span>点名历史 <span style="font-size:12px;color:#999;font-weight:700" id="historyCount"></span></div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty">还没有记录，点一次试试！</div>
+        </div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn" id="resetRoundBtn" style="background:var(--blue);color:#fff">↺ 重置本轮</button>
+          <button class="btn" id="resetAllBtn" style="background:#fff">清空历史</button>
+        </div>
+      </div>
+
+      <div class="roster-panel">
+        <div class="panel-title"><span class="num" style="background:var(--green)">✓</span>名单状态</div>
+        <div class="roster-grid" id="rosterGrid">
+          <div class="history-empty">名单为空，请先导入。</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- SheetJS 用于解析 Excel，jsDelivr CDN -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  /* ---------- 状态 ---------- */
+  let roster = [];        // [{name, called}]
+  let history = [];       // [name,...]
+  let mode = "once";      // once | multi
+  let rolling = false;
+
+  /* ---------- DOM ---------- */
+  const $ = id => document.getElementById(id);
+  const nameInput = $("nameInput"), fileInput = $("fileInput");
+  const nameDisplay = $("nameDisplay"), drawBtn = $("drawBtn");
+  const modeSwitch = $("modeSwitch"), modeDesc = $("modeDesc");
+  const historyList = $("historyList"), rosterGrid = $("rosterGrid");
+  const statTotal = $("statTotal"), statRemain = $("statRemain");
+  const toast = $("toast");
+
+  /* ---------- 工具 ---------- */
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove("show"), 2200);
+  }
+
+  function parseNames(text) {
+    return text
+      .split(/[\n,，、;；\t ]+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  function refresh() {
+    statTotal.textContent = roster.length;
+    const remain = roster.filter(p => !p.called).length;
+    statRemain.textContent = mode === "multi" ? roster.length : remain;
+
+    if (roster.length === 0) {
+      rosterGrid.innerHTML = '<div class="history-empty">名单为空，请先导入。</div>';
+    } else {
+      rosterGrid.innerHTML = roster.map(p =>
+        `<div class="roster-item${p.called && mode === "once" ? " called" : ""}">
+           <span class="dot"></span>${escapeHtml(p.name)}
+         </div>`).join("");
+    }
+
+    if (history.length === 0) {
+      historyList.innerHTML = '<div class="history-empty">还没有记录，点一次试试！</div>';
+      $("historyCount").textContent = "";
+    } else {
+      historyList.innerHTML = history.map((n, i) =>
+        `<span class="history-tag" style="background:${tagColor(i)}">${i + 1}. ${escapeHtml(n)}</span>`).join("");
+      $("historyCount").textContent = `共 ${history.length} 次`;
+    }
+  }
+
+  function tagColor(i) {
+    const colors = ["#ffd93d", "#ff6b9d", "#6bcb77", "#4d96ff", "#b983ff", "#ff9f45"];
+    return colors[i % colors.length];
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  /* ---------- 名单载入 ---------- */
+  function loadRoster() {
+    const names = parseNames(nameInput.value);
+    if (names.length === 0) { showToast("名单为空，请先输入或导入"); return; }
+    const seen = new Set();
+    roster = [];
+    names.forEach(n => {
+      if (!seen.has(n)) { seen.add(n); roster.push({ name: n, called: false }); }
+    });
+    history = [];
+    nameDisplay.textContent = "?";
+    nameDisplay.className = "name-display";
+    refresh();
+    showToast(`已载入 ${roster.length} 人`);
+  }
+
+  $("loadBtn").addEventListener("click", loadRoster);
+
+  $("demoBtn").addEventListener("click", () => {
+    nameInput.value = ["张伟","王芳","李娜","刘洋","陈静","杨帆","赵磊","黄敏","周涛","吴倩","徐斌","孙丽","马超","朱婷","胡军","郭晓","林悦","何俊","高翔","罗丹"].join("\n");
+    loadRoster();
+  });
+
+  $("clearBtn").addEventListener("click", () => {
+    nameInput.value = "";
+    roster = []; history = [];
+    nameDisplay.textContent = "?";
+    nameDisplay.className = "name-display";
+    refresh();
+    showToast("已清空");
+  });
+
+  /* ---------- 文件导入 ---------- */
+  fileInput.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+
+    if (/\.(xlsx|xls)$/i.test(file.name)) {
+      reader.onload = ev => {
+        try {
+          const wb = XLSX.read(new Uint8Array(ev.target.result), { type: "array" });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          // 找表头里的姓名列（默认第 0 列）
+          const head = rows[0] || [];
+          const nameRe = /(姓名|名字|学生|学号|name|姓名$)/i;
+          const strongRe = /(姓名|名字|^name$|name\b)/i;   // 先找明确指姓名的列
+          let col = 0;
+          let found = -1;
+          for (let i = 0; i < head.length; i++) { if (strongRe.test(String(head[i]).trim())) { found = i; break; } }
+          if (found === -1) for (let i = 0; i < head.length; i++) { if (nameRe.test(String(head[i]).trim())) { found = i; break; } }
+          col = found === -1 ? 0 : found;
+          const hasHeader = head.some(h => nameRe.test(String(h).trim()));
+          const startRow = hasHeader ? 1 : 0;
+          const names = [];
+          for (let i = startRow; i < rows.length; i++) {
+            const v = String(rows[i][col]).trim();
+            if (v) names.push(v);
+          }
+          nameInput.value = names.join("\n");
+          loadRoster();
+        } catch (err) {
+          showToast("Excel 解析失败：" + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.onload = ev => {
+        nameInput.value = ev.target.result;
+        loadRoster();
+      };
+      reader.readAsText(file, "utf-8");
+    }
+    fileInput.value = "";
+  });
+
+  /* ---------- 模式切换 ---------- */
+  modeSwitch.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      mode = btn.dataset.mode;
+      modeSwitch.dataset.mode = mode;
+      modeSwitch.querySelectorAll(".mode-btn").forEach(b => b.classList.toggle("active", b === btn));
+      modeDesc.textContent = mode === "once"
+        ? "当前模式：每人最多被点到一次，点完全部自动重置。适合课堂提问、抽签。"
+        : "当前模式：同一个人可以被重复点到，纯随机。适合抽奖、随机发言。";
+      refresh();
+    });
+  });
+
+  /* ---------- 点名核心 ---------- */
+  function pickPool() {
+    if (mode === "multi") return roster;
+    let pool = roster.filter(p => !p.called);
+    if (pool.length === 0) {
+      roster.forEach(p => p.called = false);
+      history = [];
+      showToast("本轮已全部点完，自动开启新一轮！");
+      pool = roster.slice();
+      refresh();
+    }
+    return pool;
+  }
+
+  drawBtn.addEventListener("click", () => {
+    if (rolling) return;
+    if (roster.length === 0) { showToast("请先载入名单"); return; }
+
+    const pool = pickPool();
+    if (!pool || pool.length === 0) return;
+
+    rolling = true;
+    drawBtn.disabled = true;
+    drawBtn.textContent = "点名中…";
+    nameDisplay.className = "name-display rolling";
+
+    // 滚动动画
+    const duration = 1400;
+    const interval = 70;
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      nameDisplay.textContent = pool[Math.floor(Math.random() * pool.length)].name;
+      elapsed += interval;
+      if (elapsed >= duration) {
+        clearInterval(timer);
+        // 最终结果
+        const winner = pool[Math.floor(Math.random() * pool.length)];
+        if (mode === "once") winner.called = true;
+        history.push(winner.name);
+        nameDisplay.textContent = winner.name;
+        nameDisplay.className = "name-display winner";
+        drawBtn.disabled = false;
+        drawBtn.textContent = "开始点名";
+        rolling = false;
+        refresh();
+      }
+    }, interval);
+  });
+
+  /* ---------- 重置 ---------- */
+  $("resetRoundBtn").addEventListener("click", () => {
+    roster.forEach(p => p.called = false);
+    history = [];
+    nameDisplay.textContent = "?";
+    nameDisplay.className = "name-display";
+    refresh();
+    showToast("已重置本轮");
+  });
+
+  $("resetAllBtn").addEventListener("click", () => {
+    history = [];
+    refresh();
+    showToast("历史已清空");
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
